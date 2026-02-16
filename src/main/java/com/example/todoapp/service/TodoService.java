@@ -16,19 +16,19 @@ public class TodoService {
         this.repository = repository;
     }
 
-    public Todo createTodo(Todo todo) {
+    public Todo create(Todo todo) {
         return repository.save(todo);
     }
 
-    public List<Todo> getAllTodos() {
+    public List<Todo> getAll() {
         return repository.findAll();
     }
 
-    public Optional<Todo> getTodoById(String id) {
+    public Optional<Todo> getById(String id) {
         return repository.findById(id);
     }
 
-    public Todo updateTodo(String id, Todo newTodo) {
+    public Todo update(String id, Todo newTodo) {
         return repository.findById(id)
                 .map(todo -> {
                     todo.setTitle(newTodo.getTitle());
@@ -38,7 +38,7 @@ public class TodoService {
                 }).orElse(null);
     }
 
-    public void deleteTodo(String id) {
+    public void delete(String id) {
         repository.deleteById(id);
     }
 }

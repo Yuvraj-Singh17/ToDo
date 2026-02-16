@@ -18,28 +18,28 @@ public class TodoController {
     }
 
     @PostMapping
-    public Todo createTodo(@RequestBody Todo todo) {
-        return service.createTodo(todo);
+    public Todo create(@RequestBody Todo todo) {
+        return service.create(todo);
     }
 
     @GetMapping
-    public List<Todo> getAllTodos() {
-        return service.getAllTodos();
+    public List<Todo> getAll() {
+        return service.getAll();
     }
 
     @GetMapping("/{id}")
-    public Todo getTodoById(@PathVariable String id) {
-        return service.getTodoById(id).orElse(null);
+    public Todo getById(@PathVariable String id) {
+        return service.getById(id).orElse(null);
     }
 
     @PutMapping("/{id}")
-    public Todo updateTodo(@PathVariable String id, @RequestBody Todo todo) {
-        return service.updateTodo(id, todo);
+    public Todo update(@PathVariable String id, @RequestBody Todo todo) {
+        return service.update(id, todo);
     }
 
     @DeleteMapping("/{id}")
-    public String deleteTodo(@PathVariable String id) {
-        service.deleteTodo(id);
+    public String delete(@PathVariable String id) {
+        service.delete(id);
         return "Deleted Successfully";
     }
 }
