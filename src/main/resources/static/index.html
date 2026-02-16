@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Todo App</title>
+
+    <style>
+        * {
+          box-sizing: border-box;
+        }
+
+        body {
+          margin: 0;
+          font-family: 'Segoe UI', sans-serif;
+          min-height: 100vh;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .app {
+          width: 420px;
+          background: white;
+          border-radius: 15px;
+          padding: 20px;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+          text-align: center;
+          margin-bottom: 15px;
+        }
+
+        .form-group {
+          margin-bottom: 10px;
+        }
+
+        input {
+          width: 100%;
+          padding: 10px;
+          border-radius: 8px;
+          border: 1px solid #ddd;
+        }
+
+        .add-btn {
+          width: 100%;
+          padding: 10px;
+          border: none;
+          border-radius: 8px;
+          background: #667eea;
+          color: white;
+          font-weight: bold;
+          cursor: pointer;
+          transition: 0.2s;
+        }
+
+        .add-btn:hover {
+          background: #5a67d8;
+        }
+
+        .list {
+          margin-top: 15px;
+          max-height: 300px;
+          overflow-y: auto;
+        }
+
+        .card {
+          background: #f7f8fc;
+          border-radius: 10px;
+          padding: 10px;
+          margin-bottom: 10px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          transition: transform 0.15s;
+        }
+
+        .card:hover {
+          transform: scale(1.02);
+        }
+
+        .info {
+          flex: 1;
+        }
+
+        .title {
+          font-weight: bold;
+        }
+
+        .description {
+          font-size: 12px;
+          color: gray;
+        }
+
+        .badge {
+          font-size: 11px;
+          padding: 3px 6px;
+          border-radius: 10px;
+          margin-top: 4px;
+          display: inline-block;
+        }
+
+        .done {
+          background: #c6f6d5;
+          color: #22543d;
+        }
+
+        .pending {
+          background: #fed7d7;
+          color: #742a2a;
+        }
+
+        .actions button {
+          border: none;
+          padding: 6px 8px;
+          margin-left: 5px;
+          border-radius: 6px;
+          cursor: pointer;
+        }
+
+        .complete-btn {
+          background: #48bb78;
+          color: white;
+        }
+
+        .delete-btn {
+          background: #f56565;
+          color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+    <h1>✨ My Tasks</h1>
+
+    <div class="form-group">
+        <input id="title" placeholder="Task title">
+    </div>
+
+    <div class="form-group">
+        <input id="description" placeholder="Description">
+    </div>
+
+    <button class="add-btn" onclick="addTodo()">+ Add Task</button>
+
+    <div class="list" id="todoList"></div>
+</div>
+
+<script>
+    const API = "http://localhost:8080/api/todos";
+
+    async function loadTodos() {
+      const res = await fetch(API);
+      const todos = await res.json();
+
+      const list = document.getElementById("todoList");
+      list.innerHTML = "";
+
+      todos.forEach(todo => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const info = document.createElement("div");
+        info.className = "info";
+
+        info.innerHTML = `
+          <div class="title">${todo.title}</div>
+          <div class="description">${todo.description || ""}</div>
+          <span class="badge ${todo.completed ? "done" : "pending"}">
+            ${todo.completed ? "Completed" : "Pending"}
+          </span>
+        `;
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const completeBtn = document.createElement("button");
+        completeBtn.className = "complete-btn";
+        completeBtn.textContent = "✓";
+        completeBtn.onclick = () => toggleComplete(todo);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "delete-btn";
+        deleteBtn.textContent = "✕";
+        deleteBtn.onclick = () => deleteTodo(todo.id);
+
+        actions.appendChild(completeBtn);
+        actions.appendChild(deleteBtn);
+
+        card.appendChild(info);
+        card.appendChild(actions);
+        list.appendChild(card);
+      });
+    }
+
+    async function addTodo() {
+      const title = document.getElementById("title").value;
+      const description = document.getElementById("description").value;
+
+      if (!title) return alert("Enter title");
+
+      await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          description,
+          completed: false
+        })
+      });
+
+      document.getElementById("title").value = "";
+      document.getElementById("description").value = "";
+
+      loadTodos();
+    }
+
+    async function deleteTodo(id) {
+      await fetch(`${API}/${id}`, { method: "DELETE" });
+      loadTodos();
+    }
+
+    async function toggleComplete(todo) {
+      await fetch(`${API}/${todo.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: todo.title,
+          description: todo.description,
+          completed: !todo.completed
+        })
+      });
+      loadTodos();
+    }
+
+    loadTodos();
+</script>
+
+</body>
+</html>
